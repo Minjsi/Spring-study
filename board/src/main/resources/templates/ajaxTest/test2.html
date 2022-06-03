@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>jQuery Ajax HTTP Request</title>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script>
+        $(function() {
+            $("#requestBtn").on("click", function() {
+                // GET 방식으로 서버에 HTTP Request를 보냄.
+                $.get("/examples/media/request_ajax.php",
+                    { species: "고양이", name: "나비", age: 3,  },	// 서버가 필요한 정보를 같이 보냄.
+                    function(data, status) {
+                        $("#text").html(data + "<br>" + status);	// 전송받은 데이터와 전송 성공 여부를 보여줌.
+                    }
+                );
+            });
+        });
+    </script>
+</head>
+
+<body>
+
+<h1>$.get() 메소드</h1>
+<button id="requestBtn">GET 방식으로 데이터 불러오기!</button>
+<p id="text"></p>
+
+</body>
+
+</html>

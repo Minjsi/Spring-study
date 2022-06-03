@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>게시글 작성</title>
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <style>
+        body {transform: scale(0.8); margin-top: -50px;}
+    </style>
+</head>
+<body>
+<!-- Main -->
+<div id="main">
+    <div class="wrapper">
+        <div class="inner">
+
+            <!-- Elements -->
+            <header class="major">
+                <h1>Board</h1>
+                <p>게시글 등록</p>
+            </header>
+            <!-- Table -->
+            <h3><a href="/board/list" class="button small">목록 보기</a></h3>
+            <div class="content">
+                <div class="form">
+                    <form  name="registerForm" method="post" action="/board/register" id="registerForm">
+                        <div class="fields">
+                            <div class="field">
+                                <h4>제목</h4>
+                                <input class="input-box" name="boardTitle" placeholder="Title" type="text" />
+                                <div id="boardTitleError" style="color: red;display: none;">제목을 입력하세요.</div>
+                            </div>
+
+                            <div class="field">
+                                <h4>내용</h4>
+                                <textarea class="input-box" name="boardContent" rows="6" placeholder="Content" style="resize:none"></textarea>
+                                <div id="boardContentError" style="color: red;display: none;">내용을 입력하세요.</div>
+                            </div>
+                            <div class="field">
+                                <h4>작성자</h4>
+                                <input class="input-box" name="boardWriter" placeholder="Writer" type="text" />
+                                <div id="boardWriterError" style="color: red;display: none;">작성자를 입력하세요.</div>
+                            </div>
+                        </div>
+                        <ul class="actions special">
+                            <li><input type="submit" class="button" value="등록" /></li>
+                            <a href="" class="button primary" value="등록"></a>
+                        </ul>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<!-- Scripts -->
+<script src="/assets/js/jquery.min.js"></script>
+<script src="/assets/js/jquery.dropotron.min.js"></script>
+<script src="/assets/js/browser.min.js"></script>
+<script src="/assets/js/breakpoints.min.js"></script>
+<script src="/assets/js/util.js"></script>
+<script src="/assets/js/main.js"></script>
+<script>
+
+    let $registerForm = $(registerForm);
+
+    $("a.button ").click(function(e){
+        e.preventDefault();
+        checkSearch();
+    });
+
+    $("input[name='keyword']").keydown(function(e){
+        if(e.keyCode == 13){
+            checkSearch();
+        }
+    })
+
+    function checkSearch(){
+        // 유효성 검사 (검색기준, 키워드)
+        if(!$registerForm.find("input[name='boardTitle'").val()){
+            $('#boardTitleError').css('display', 'block');
+            alert("검색어를 입력하세요.");
+            return;
+        }
+        if(!$registerForm.find("input[name='boardContent'").val()){
+            $('#boardContentError').css('display', 'block');
+            alert("검색어를 입력하세요.");
+            return;
+        }
+        if(!$registerForm.find("input[name='boardWriter'").val()){
+            $('#boardWriterError').css('display', 'block');
+            alert("검색어를 입력하세요.");
+            return;
+        }
+        registerForm.submit();
+    }
+
+</script>
+</script>
+</html>

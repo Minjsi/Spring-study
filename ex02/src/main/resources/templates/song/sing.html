@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+</head>
+<body>
+<form action="/ex/score" type="submit" name="songForm">
+    노래 점수를 입력하세요
+    <input type="text" name="score">
+    <input type="button"value="입력" onclick="send()">
+</form>
+</body>
+<script>
+    function send() {
+        if(!songForm.score.value) {
+            alert("점수를 입력하세요")
+            return;
+        } else {
+            songForm.submit();
+        }
+    }
+</script>
+</html>

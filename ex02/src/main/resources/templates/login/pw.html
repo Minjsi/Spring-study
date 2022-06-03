@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+</head>
+<body>
+비번 틀림
+</body>
+<script>
+    function send() {
+        if(!login_form.id.value || !login_form.pw.value) {
+            alert("아이디와 비번을 둘다 입력하세요.")
+            return;
+        } else {
+            login_form.submit();
+        }
+    }
+</script>
+</html>

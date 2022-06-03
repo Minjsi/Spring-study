@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>당신의 job</title>
+</head>
+<body>
+<h1>당신의 job</h1>
+<form role="form" name="job" method="post" action="start">
+
+    <label>이름</label>
+    <input type="text" name="name"> <br>
+    <button type="submit" onclick='btn_click("start");'>출근</button>
+    <button type="submit" onclick='btn_click("end");'>퇴근</button>
+</form>
+<script>
+    function btn_click(w) {
+        if(w=="start"){
+            job.action="/ex/start";
+        } else if(w=="end"){
+            job.action="/ex/end";
+        }
+    }
+</script>
+</body>
+</html>

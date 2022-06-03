@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+
+
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Ajax Intro</title>
+
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+
+    <script src="/assets/js/reply.js"></script>
+
+    <script>
+
+        $(function() {
+
+            $("#requestBtn").on("click", function() {
+
+                $("#text").load("ajax_intro_data.txt");
+
+            });
+
+        });
+
+
+
+
+        // 테스트
+        replyService.add({
+            replyContent: "JS Module Test",
+            replyWriter:"ksy123",
+            boardBno: boardBno
+        }, function(result){
+            console.log(result);
+        }, function (a, b, c) {
+            console.log(a,b,c)
+        })
+
+        // replyService.add({
+        //     replyContent: "JS Module Test",
+        //     replyWriter: "hds1234",
+        //     boardBno: boardBno
+        // }, function(result){
+        //     alert(result);
+        // }, function(a, b, c){console.log(a, b, c)});
+
+
+        // 테스트
+        replyService.readone(138, function(result){
+            console.log(result)
+        }, function (a, b, c) {
+            console.log(a, b, c)
+        })
+
+        // 테스트
+        replyService.remove(137, function(result){
+            console.log(result)
+        }, function (a, b, c) {
+            console.log(a, b, c)
+        })
+
+        // 테스트
+        replyService.modify(140,{
+            replyContent: "JS Module Test수정 테스트트",
+            replyWriter: "ksy123123 수정수정",
+        }, function(result){
+            console.log("수정 성공" + result)
+        }, function(a, b, c){console.log(a, b, c)});
+
+        // 강사님 코드
+
+        //    테스트
+
+        replyService.getlist({
+                bno : 9,
+                page : 1},
+            function(result) {
+                console.log(result)
+            }, function(a, b, c){console.log(a, b, c)});
+
+
+
+    </script>
+
+</head>
+
+
+
+<body>
+
+<h1>Ajax(Asynchronous JavaScript and XML) 실습하기 1탄</h1>
+
+<p id="text">여러분 이걸 누르면 뭐가 나오게</p>
+
+<button id="requestBtn">눌러보시지</button>
+
+</body>
+
+
+
+</html>
+

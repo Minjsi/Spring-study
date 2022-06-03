@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.board.mapper.ConcertMapper">
+
+
+    <select id="getList" resultType="concertVO">
+        SELECT CONCERT_NUMBER, CONCERT_NAME, CONCERT_DATE, CONCERT_PRICE, USER_NUMBER
+        FROM TBL_CONCERT
+    </select>
+
+
+    <select id="getTotal" resultType="_int">
+        SELECT COUNT(*)
+        FROM TBL_CONCERT
+    </select>
+
+    <insert id="insert"><!--// 추가된 게시글 번호를 셀렉트로 전달-->
+        <selectKey keyProperty="concertNumber" resultType="long" order="BEFORE"><!--원리는 setter 호출-->
+            <!--insert안에 select하기 대신 이건 pk값만 가져올 수 잇음-->
+            SELECT SEQ_BOARD.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO TBL_CONCERT
+        (CONCERT_NUMBER, CONCERT_NAME, CONCERT_DATE, CONCERT_PRICE, USER_NUMBER)
+        VALUES(SEQ_CONCERT.NEXTVAL, #{concertName}, #{concertDate}, #{concertPrice}, #{userNumber})
+    </insert>
+
+    <select id="detail" resultType="concertVO">
+        SELECT CONCERT_NUMBER, CONCERT_NAME, CONCERT_DATE, CONCERT_PRICE, USER_NUMBER
+        FROM TBL_CONCERT
+        WHERE CONCERT_NUMBER = #{concertNumber}
+    </select>
+
+    <update  id="update">
+        UPDATE TBL_CONCERT
+        SET CONCERT_NAME = #{concertName}, CONCERT_DATE = #{concertDate}/*, CONCERT_PRICE = #{concertPrice}, USER_NUMBER = #{userNumber}*/
+        WHERE CONCERT_NUMBER = #{concertNumber}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM TBL_CONCERT
+        WHERE CONCERT_NUMBER = #{concertNumber}
+    </delete>
+</mapper>

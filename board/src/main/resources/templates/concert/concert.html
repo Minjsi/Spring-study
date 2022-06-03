@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>수띵 공연</title>
+</head>
+<body>
+<h1>~ 수띵파크 티켓 ~</h1>
+</body>
+<script src="/assets/js/jquery.min.js"></script>
+<script src="/assets/js/jquery.dropotron.min.js"></script>
+<script src="/assets/js/concert.js"></script>
+<script>
+    concertService.name(40,
+    function (result) {
+        console.log(result);
+    }, function (a, b, c) {
+        console.log(a, b, c)
+        }
+    )
+
+    concertService.detail(function (result) {
+        console.log(result);
+    }, function (a, b, c) {
+        console.log(a, b, c)
+    })
+
+    concertService.modify(36,{
+        concertName : "한동석 여름 여름 콘서트",
+        concertDate : "20221212",
+    } ,function (result) {
+        console.log(result);
+    }, function (a, b, c) {
+        console.log(a, b, c)
+    })
+</script>
+</html>

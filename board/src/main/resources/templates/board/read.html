@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>게시글 상세보기</title>
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <style>
+        body {transform: scale(0.8);}
+    </style>
+</head>
+<body>
+<!-- Main -->
+<div id="main">
+    <div class="wrapper">
+        <div class="inner">
+
+            <!-- Elements -->
+            <header class="major">
+                <h1>Board</h1>
+                <p>게시글 상세보기</p>
+            </header>
+            <!-- Table -->
+            <h3><a  id="goList" href="/board/list" class="button small">목록 보기</a></h3>
+            <div class="content">
+                <div class="form">
+                    <form method="post" action="/board/remove" th:object="${board}">
+                        <div class="fields">
+                            <div class="field">
+                                <h4>번호</h4>
+                                <input type="text" readonly th:field="*{boardBno}"/>
+                            </div>
+                            <div class="field">
+                                <h4>제목</h4>
+                                <input type="text" readonly th:field="*{boardTitle}"/>
+                            </div>
+                            <div class="field">
+                                <h4>내용</h4>
+                                <textarea rows="6" style="resize:none" readonly th:field="*{boardContent}"></textarea>
+                            </div>
+                            <div class="field">
+                                <h4>작성자</h4>
+                                <input type="text" readonly th:field="*{boardWriter}"/>
+                            </div>
+                        </div>
+                        <ul class="actions special">
+                            <li>
+                                <input type="button" class="button" value="수정" onclick="goUpdate();"/>
+                                <input type="submit" class="button" value="삭제"/>
+                            </li>
+                        </ul>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<!-- Scripts -->
+<script src="/assets/js/jquery.min.js"></script>
+<script src="/assets/js/jquery.dropotron.min.js"></script>
+<script src="/assets/js/browser.min.js"></script>
+<script src="/assets/js/breakpoints.min.js"></script>
+<script src="/assets/js/util.js"></script>
+<script src="/assets/js/main.js"></script>
+<script src="/assets/js/reply.js"></script>
+<script th:inline="javascript"> <!--타임리프 안에서 자바 스크립트를 쓰는 거시당...-->
+let boardBno = [[${board.boardBno}]];
+let paging = [[${criteria.listLink}]];
+
+$(document).ready(function () { // 완성되고 나서 마지막에 하게따 라는 뜻
+    console.log(replyService);
+    replyService.add(function (result) { // 여기로 콜백함수가 다시 온다.
+    })
+});
+
+function goUpdate(){
+    location.href = '/board/modify' + paging + '&boardBno=' + boardBno;
+}
+
+$("a#goList").click(function(e){
+    e.preventDefault();
+    location.href = "/board/list" + paging;
+})
+    // 테스트
+    replyService.add({
+        replyContent: "JS Module Test",
+        replyWriter:"ksy123",
+        boardBno: boardBno
+    }, function(result){
+    console.log(result);
+    }, function (a, b, c) {
+    console.log(a,b,c)
+    })
+
+// replyService.add({
+//     replyContent: "JS Module Test",
+//     replyWriter: "hds1234",
+//     boardBno: boardBno
+// }, function(result){
+//     alert(result);
+// }, function(a, b, c){console.log(a, b, c)});
+
+
+// 테스트
+replyService.readone(138, function(result){
+    console.log(result)
+}, function (a, b, c) {
+console.log(a, b, c)
+})
+
+// 테스트
+replyService.remove(137, function(result){
+    console.log(result)
+}, function (a, b, c) {
+    console.log(a, b, c)
+})
+
+    // 테스트
+replyService.modify(140,{
+    replyContent: "JS Module Test수정 테스트트",
+   replyWriter: "ksy123123 수정수정",
+}, function(result){
+    console.log("수정 성공" + result)
+}, function(a, b, c){console.log(a, b, c)});
+
+// 강사님 코드
+
+//    테스트
+
+replyService.getlist({
+    bno : 9,
+    page : 1},
+    function(result) {
+        console.log(result)
+    }, function(a, b, c){console.log(a, b, c)});
+</script>
+</html>
