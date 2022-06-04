@@ -8,6 +8,12 @@
         FROM TBL_CONCERT
     </select>
 
+    <select id="getListUser" resultType="concertVO">
+        SELECT CONCERT_NUMBER, CONCERT_NAME, CONCERT_DATE, CONCERT_PRICE, USER_NUMBER
+        FROM TBL_CONCERT
+        WHERE USER_NUMBER = #{userNumber}
+    </select>
+
 
     <select id="getTotal" resultType="_int">
         SELECT COUNT(*)
@@ -32,7 +38,7 @@
 
     <update  id="update">
         UPDATE TBL_CONCERT
-        SET CONCERT_NAME = #{concertName}, CONCERT_DATE = #{concertDate}/*, CONCERT_PRICE = #{concertPrice}, USER_NUMBER = #{userNumber}*/
+        SET CONCERT_NAME = #{concertName}, CONCERT_DATE = #{concertDate}, CONCERT_PRICE = #{concertPrice}, USER_NUMBER = #{userNumber}
         WHERE CONCERT_NUMBER = #{concertNumber}
     </update>
 

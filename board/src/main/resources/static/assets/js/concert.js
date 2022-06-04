@@ -53,13 +53,34 @@ let concertService = (function (){
                 }
             }
         })
+    }
 
+    function getlistConcert(number, insert, callback, error) {
+        $.ajax({
+            url : "/info/getlist/" + number,
+            type : "post",
+            dataType : "json",
+            data : JSON.stringify(insert),
+            contentType : "application/json",
+
+            success : function (result) {
+                if(callback) {
+                    callback(result);
+                }
+            },
+            error : function (xhr, status, er) {
+                if(error) {
+                    error(xhr, status, er); // console에서 확인을 해보면 된다.
+                }
+            }
+        })
     }
 
     return {
         name : name,
         detail : detail,
-        modify : modify
+        modify : modify,
+        getlistConcert : getlistConcert
     };
 
 })()

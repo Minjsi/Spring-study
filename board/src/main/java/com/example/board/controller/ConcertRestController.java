@@ -23,10 +23,10 @@ public class ConcertRestController {
         return (concertService.read(concertNumber)).getConcertName();
     }
 
-//   요즘 핫한 콘서트 하나 뽑기 - 매개변수 없고, json object 리턴
+//  콘서트 하나 뽑기 - 매개변수 없고, json object 리턴
     @GetMapping("/detail")
     public ConcertVO detail() {
-        return( concertService.read(40L));
+        return( concertService.read(37L));
     }
 
 //  콘서트 정보 수정하기 - 매개변수 여러개, 리턴은 json object
@@ -39,9 +39,10 @@ public class ConcertRestController {
 
 
 //  콘서트 전체 가져오기 - 매개변수 여러개, 리턴은 json array
-    @PostMapping("/getlist/{ticket}")
-    public List<ConcertVO> getList(@PathVariable("ticket") String ticket, ConcertVO concertVO) {
-        concertService.register(concertVO);
+    @PostMapping("/getlist/{cno}")
+    public List<ConcertVO> getList(@PathVariable("cno") Long concertNumber, @RequestBody ConcertVO concertVO) {
+        concertVO.setConcertNumber(concertNumber);
+        concertService.modify(concertVO);
         return concertService.getList();
     }
 }

@@ -16,6 +16,7 @@
 <script>
     concertService.name(40,
     function (result) {
+        console.log("첫번째");
         console.log(result);
     }, function (a, b, c) {
         console.log(a, b, c)
@@ -28,13 +29,27 @@
         console.log(a, b, c)
     })
 
-    concertService.modify(36,{
+    concertService.modify(33,{
         concertName : "한동석 여름 여름 콘서트",
         concertDate : "20221212",
+        concertPrice : 100000,
+        userNumber : 1
     } ,function (result) {
         console.log(result);
     }, function (a, b, c) {
         console.log(a, b, c)
     })
+
+    concertService.getlistConcert(34,{
+            concertName : "이진서 코딩코딩 콘서트",
+            concertDate : "20230208",
+            concertPrice : 1000000,
+            userNumber : 1
+    },
+    function (result) {
+        console.log(result)
+    }, function (a, b, c) {
+            console.log(a, b, c)
+        })
 </script>
 </html>
