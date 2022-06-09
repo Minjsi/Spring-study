@@ -42,4 +42,8 @@ public class ReplyDAO { /* 보드맵퍼 주입 받아서 써야함  mapper를 �
 
 // 댓글 검색하기
 // 답댓글
+
+    public int getReplyTotal(Long boardBno){
+        return replyMapper.getReplyTotal(boardBno);
+    }
 }

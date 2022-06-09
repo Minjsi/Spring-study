@@ -1,10 +1,7 @@
 package com.example.board.controller;
 
 
-import com.example.board.domain.vo.Criteria;
-import com.example.board.domain.vo.FruitVO;
-import com.example.board.domain.vo.ReplyVO;
-import com.example.board.domain.vo.TestVO;
+import com.example.board.domain.vo.*;
 import com.example.board.service.ReplyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -84,8 +81,8 @@ public class ReplyController {
 
 //    게시글 전체 댓글 조회 - 강사님 코드
     @GetMapping("/list/{bno}/{page}")
-    public List<ReplyVO> getReplyList(@PathVariable("page") int pageNum, @PathVariable("bno") Long boardBno) {
-       return replyService.getReplyList(new Criteria(pageNum, 10), boardBno);
+    public ReplyPageDTO getReplyList(@PathVariable("page") int pageNum, @PathVariable("bno") Long boardBno) {
+       return new ReplyPageDTO(replyService.getReplyList(new Criteria(pageNum, 10), boardBno), replyService.getReplyTotal(boardBno));
     }
 
     //   게시글 댓글 삭제 - 내 코드
@@ -149,7 +146,7 @@ public class ReplyController {
         // 사실 여기서 json 검증을 통해서 ... 어............암튼 null 일때 필요한 부분을 셀렉트 할 수 있음 ... 근데 코드 길어짐 ....
         replyVO.setReplyNumber(replyNumber); // rno를 따로 받았기 때문에 언ㄴㄴㄴ능 replyvo에 넣어줘자자자
         replyService.modifyReply(replyVO);
-        return "댓글 수정 성공공";
+        return "댓글이 수정되었습니다.";
     }
 
 //    5개

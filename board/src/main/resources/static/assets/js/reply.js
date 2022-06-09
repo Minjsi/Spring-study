@@ -4,9 +4,7 @@ reply module
 
 console.log("reply module.................");
 let replyService = (function (){ // 딱 이렇게 박아버리셈 여기서 무조건 이것만 쓰게따
-    // js 중괄호는 무조건 객체 키 밸류 써줘야댐
-    // json 같은거 ㄴㄴ
-    // return {name: "AAAA"};
+    // js 중괄호는 무조건 객체 키 밸류 써줘야 댐  // json 같은거 ㄴㄴ
     function add(reply, callback, error) { // js object 형태로 들어오는 reply // add함수 사용은 html 에서 씀
     $.ajax({ // javascript object 전달하는 것
         url: "/reply/new",
@@ -122,23 +120,35 @@ let replyService = (function (){ // 딱 이렇게 박아버리셈 여기서 무�
             });
         }
 
+        // json get만 받을때 사용할 수 있는 방법
         function getlist(param, callback, error) {
-        $.ajax({
-            url : "/reply/list/" + param.bno  + "/" + param.page,
-            type : "get",
-            dataType : "json",
-
-            success: function(list){
-                if(callback){
-                    callback(list);
-                }
-            },
-            error: function(xhr, status, er){
-                if(error){
-                    error(xhr, status, er);
-                }
+        let page = param.page || 1;
+        $.getJSON("/reply/list/" + param.bno  + "/" + page, function (replyPageDTO) {
+            if (callback) {
+                callback(replyPageDTO.total, replyPageDTO.list);
+            }
+        }).fail(function (xhr, status, er) {
+            if(error) {
+                error(er);
             }
         })
+        // $.ajax({
+        //     url : "/reply/list/\" + param.bno  + \"/\" + page",
+        //     type : "get",
+        //     dataType : "json",
+        //
+        //     success: function(replyPageDTO){
+        //         if(callback){
+        //             callback(replyPageDTO.total, replyPageDTO.list);
+        //         }
+        //     },
+        //     error: function(xhr, status, er){
+        //         if(error){
+        //             error(xhr, status, er);
+        //         }
+        //     }
+        // })
+
         }
 
         function one(callback, error) {
@@ -232,6 +242,60 @@ let replyService = (function (){ // 딱 이렇게 박아버리셈 여기서 무�
             })
         }
 
+        // 댓글 작성 시간
+        function getReplyDateByJavascript(replyDate) {
+            let today = new Date();
+            let rDate = new Date(replyDate);
+            let gap = today.getTime() - rDate.getTime();
+
+            if( gap < 1000 * 60 * 60 * 24 ) {
+                let h = rDate.getHours();
+                let m = rDate.getMinutes();
+                let s = rDate.getSeconds();
+
+                return [ (h < 10 ? '0' : '') + h ,(m < 10 ? '0' : '') + m ,(s < 10 ? '0' : '') + s  ].join(":");
+            }else {
+                let y = rDate.getFullYear();
+                let m = rDate.getMonth() + 1;
+                let d = rDate.getDate();
+                return[y, (m < 10 ? '0' : '') + m, (d< 10? '0' : '') + d].join("-");
+            }
+        }
+
+        // 댓글 수정시간 자바
+    // function getReplyDateByController(replyDate, callback) {
+    //     let result;
+    //     $.ajax({
+    //         url : "/time",
+    //         type : "get",
+    //         data : {replyDate : replyDate},
+    //         async : false, /* 비동기식인 ajax를 동기식으로 바꿔줘서 success 부터 실행하고 return 하도록 한다.
+    //         아래 콜백함수의 연산이 모두 끝나고 나서 다음 작업이 진행된다.
+    //         */
+    //         success : function (time) {
+    //             if(callback) {
+    //                 callback(time);
+    //             }
+    //         }
+    //     });
+    //     return result;
+    // }
+
+    //댓글 수정 시간(JAVA)
+    function getReplyDateByController(replyDate){
+        let result;
+        $.ajax({
+            url: "/time",
+            type: "get",
+            data: {replyDate: replyDate},
+            async: false, //아래의 콜백함수의 연산이 모두 끝나고 나서 다음 작업이 진행된다.
+            success: function(time){
+                result = time;
+            }
+        });
+        return result;
+    }
+
     return {
         add : add,
         readone : readone,
@@ -242,7 +306,9 @@ let replyService = (function (){ // 딱 이렇게 박아버리셈 여기서 무�
         four : four,
         one : one,
         two : two,
-        five : five
+        five : five,
+        getReplyDateByJavascript : getReplyDateByJavascript,
+        getReplyDateByController : getReplyDateByController
     };
 })(
     // 사용하는 괄호

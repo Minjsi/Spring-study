@@ -10,6 +10,6 @@ public class ReplyVO {
     private Long boardBno;
     private String replyContent;
     private String replyWriter;
-    private String replyRegister;
+    private String replyRegisterDate;
     private String replyUpdateDate;
 }

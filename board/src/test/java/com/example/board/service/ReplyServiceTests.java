@@ -71,4 +71,8 @@ public class ReplyServiceTests {
         }
     }
 
+    @Test
+    public void getReplyTotalTest() {
+        log.info("댓글 개수는 : " + replyService.getReplyTotal(9L));
+    }
 }

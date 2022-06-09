@@ -73,4 +73,9 @@ public class ReplyDaoTests {
 
         }
     }
+
+    @Test
+    public void getReplyTotal() {
+        log.info("댓글 개수 :  " + replyDAO.getReplyTotal(9L));
+    }
 }

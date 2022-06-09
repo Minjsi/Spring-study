@@ -106,4 +106,9 @@ public class ReplyMapperTests {
 
         log.info("몇 개 수정?? " + replyMapper.updateReply(replyVO));
     }
+
+    @Test
+    public void getReplyTotal(){
+        log.info("댓글 개수" + replyMapper.getReplyTotal(9L));
+    }
 }

@@ -6,6 +6,7 @@ import com.example.board.domain.vo.ReplyVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.security.PublicKey;
 import java.util.List;
 // sql과 자바가 합쳐지는 곳
 @Mapper
@@ -30,4 +31,6 @@ public interface ReplyMapper {
 
     // 댓글 검색하기
     // 답댓글
+
+    public int getReplyTotal(Long boardBno);
 }

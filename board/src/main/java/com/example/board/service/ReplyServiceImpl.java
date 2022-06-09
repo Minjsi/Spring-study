@@ -37,4 +37,7 @@ public class ReplyServiceImpl implements ReplyService{ /*인터페이스 사용�
     public boolean removeReply(Long boardBno) {
         return replyDAO.removeReply(boardBno);
     }
+
+    @Override
+    public int getReplyTotal(Long boardBno) { return replyDAO.getReplyTotal(boardBno);}
 }

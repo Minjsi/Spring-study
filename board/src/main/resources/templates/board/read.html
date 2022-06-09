@@ -9,6 +9,12 @@
     <link rel="stylesheet" href="/assets/css/main.css" />
     <style>
         body {transform: scale(0.8);}
+        .line {
+            border-bottom: 1px solid #ff8b77;
+        }
+        li {
+            list-style: none;
+        }
     </style>
 </head>
 <body>
@@ -51,7 +57,33 @@
                                 <input type="submit" class="button" value="삭제"/>
                             </li>
                         </ul>
+
+
+
+                        <ul class="icons">
+                            <li style="display: block">
+                                <span class="icon solid fa-envelope"></span>
+                                <strong>댓글</strong>
+                            </li>
+                        </ul>
+                        <a href="javascript:void(0)" class="register button primary small" style="width: 100%">댓글 등록</a>
+                        <div style="display: none" class="register-form">
+                            <div>
+                                <h4>작성자</h4>
+                                <input type="text" name="replier" placeholder="Replier">
+                            </div>
+                            <div>
+                                <h4>댓글</h4>
+                                <textarea rows="6" name="reply" placeholder="Reply" style="resize: none"></textarea>
+                            </div>
+                            <div style="text-align: right">
+                                <a href="javascript:void(0)" class="finish button primary small">등록</a>
+                                <a href="javascript:void(0)" class="cancel button primary small">취소</a>
+                            </div>
+                        </div>
+                        <ul class="replies"></ul>
                     </form>
+                    <div class="paging" style="text-align: center"></div>
                 </div>
             </div>
         </div>
@@ -67,14 +99,219 @@
 <script src="/assets/js/main.js"></script>
 <script src="/assets/js/reply.js"></script>
 <script th:inline="javascript"> <!--타임리프 안에서 자바 스크립트를 쓰는 거시당...-->
+let pageNum = 1;
 let boardBno = [[${board.boardBno}]];
 let paging = [[${criteria.listLink}]];
+const replyUL = $("ul.replies");  // dom을 가져올때는 어디에 꽂아줄지 정해야함
 
-$(document).ready(function () { // 완성되고 나서 마지막에 하게따 라는 뜻
-    console.log(replyService);
-    replyService.add(function (result) { // 여기로 콜백함수가 다시 온다.
+
+showList(pageNum);
+function showList(page){
+    replyService.getlist({bno : boardBno, page : page} // 모듈쪽에 object 형태로 전달
+        ,function (total, list) {
+
+        let str = "";
+            if(list == null || list.length == 0 ) {
+                replyUL.html("");
+                return;
+            }
+            // 숙제 아래 for문을 each문으로 바꾸기 // 비교해서 작성이나 수정일 같으면 작성일, 다르면 수정일 바꾸기
+            // 수정되었을 때 수정된 날짜로 출력하기
+            // 출력된 시간 순으로 목록 구성하기 -> mapper.xml 에서 order by 로 바꾸면 댐
+            // 내코드
+            // $.each(list, function (i, reply) {
+            //     let replyRegisterDate = reply.replyRegisterDate;
+            //     let replyUpdateDate = reply.replyUpdateDate;
+            //     let replyDateView;
+            //     if (replyRegisterDate < replyUpdateDate) {
+            //         replyDateView = replyUpdateDate;
+            //     } else {
+            //         replyDateView = replyRegisterDate;
+            //     }
+            //
+            //     str += "<li>";
+            //     str += "<strong>" + reply.replyWriter + "</strong>"; // 댓글 작성자
+            //     str += "<div style='display: flex; justify-content: space-between'>";
+            //     str += "<p>" + reply.replyContent + "</p>";
+            //     str += "<p><strong>" + replyService.getReplyDateByJavascript(replyDateView) + "</strong></p>";
+            //     str += "</div>";
+            //     str += "<div class='line'></div>";
+            //     str += "</li>";
+            // })
+
+            // 수업 시간
+            // for(let i = 0 ; i < list.length ; i++) {
+            //     str += "<li>";
+            //     str += "<strong>" + list[i].replyWriter + "</strong>"; // 댓글 작성자
+            //     str += "<div style='display: flex; justify-content: space-between'>";
+            //     str += "<p>" + list[i].replyContent + "</p>";
+            //     str += "<p><strong>" + replyService.getReplyDateByJavascript(list[i].replyRegisterDate) + "</strong></p>";
+            //     str += "</div>";
+            //     str += "<div class='line'></div>";
+            //     str += "</li>";
+            // }
+
+
+            // 강사님의 숙제 코드 - registerdate와 updatedate를 어떻게 비교했을까
+            $.each(list, function(i, reply){
+                str += "<li>";
+                str += "<div style='display: flex; justify-content: space-between;>";
+                str += "<strong style='display: block;'>" + reply.replyWriter + "</strong>";
+                str += "<div class='btns'>";
+                str += "<a class='modify " + reply.replyNumber + "'>수정</a>";
+                str += "<a class='finish " + reply.replyNumber + "' style='display: none;'>수정완료</a>";
+                str += "&nbsp;&nbsp;<a class='remove" + reply.replyNumber + "'>삭제</a>";
+                str += "</div>";
+                str += "</div>";
+
+                str += "<div style='display: flex; justify-content: space-between;'>";
+                str += "<p class='" + reply.replyNumber + "'>" + reply.replyContent + "</p>";
+                str += "<p><strong>";
+                str += reply.replyRegisterDate == reply.replyUpdateDate ? replyService.getReplyDateByJavascript(reply.replyRegisterDate)
+                    : replyService.getReplyDateByController(reply.replyUpdateDate);
+                str += "</strong></p>";
+                str += "</div>";
+                str += "<div class='line'></div>";
+                str += "</li>";
+            });
+
+            replyUL.html(str);
+            showReplyPage(total);
+        }
+    )
+};
+
+
+
+
+// 댓글 삭제
+$(".replies").on("click", "div.btns a.remove", function (e) {
+    e.preventDefault();
+    replyService.remove(this.classList[1], function (result) {
+        alert(result);
+        showList(pageNum);
     })
-});
+})
+
+let check = false;
+
+// 댓글 수정
+$(".replies").on("click", "div.btns a.modify", function (e) {
+        e.preventDefault();
+        if(check) {
+            alert("이미 수정 중인 댓글이 있습니다.")
+            return;
+        }
+        let replyNumber = this.classList[1];
+        let str = "";
+        $("a." + replyNumber).show();
+        $(this).hide();
+
+        str += "<textarea class='"+ replyNumber + "' style='resize: none'>";
+        str += $("p." + replyNumber).text();
+        str += "</textarea>";
+        str +=
+
+        $("p." + replyNumber).replaceWith(str);
+        $("textarea." + replyNumber).css("width", "75%");
+        check = false;
+    })
+
+// 수정 완료
+$(".replies").on("click", "div.btns a.finish", function (e) {
+    let replyNumber = this.classList[1];
+    console.log("replyNumberreplyNumber");
+    console.log(replyNumber);
+    let replyContent = $("textarea." + replyNumber).val();
+    // if(!replyContent) {
+    //     alert("수정할 댓글 내용을 입력해주세요.")
+    //     return;
+    // };
+    replyService.modify(replyNumber, {
+        replyContent : replyContent
+    }, function (result) {
+        alert(result);
+        showList(pageNum);
+        check = true;
+    }, function(a, b, c){console.log(a, b, c)});
+})
+
+
+function showReplyPage(total){
+    let endPage = Math.ceil(pageNum / 10.0) * 10; // 올림
+    let startPage = endPage - 9;
+    let realEnd = Math.ceil(total / 10.0);  // 올림
+    const $paging = $(".paging");
+
+    if(endPage > realEnd) {
+        endPage = realEnd;
+    }
+
+    let prev = startPage > 1;
+    let next = endPage * 10 < total;
+    let str = "";
+    if(prev){
+        str += "<a class='changePage' href='" + (startPage - 1) + "'><code>&lt;</code></a>"
+    }
+    for(let i = startPage; i <= endPage; i++){
+        str += pageNum == i ? "<code>" + i + "</code>" : "<a class='changePage' href='" + i + "'><code>" + i + "</code></a>";
+    }
+    if(next){
+        str += "<a class='changePage' href='" + (endPage + 1) + "'><code>&gt;</code></a>"
+    }
+    $paging.html(str);
+}
+
+// 이벤트 위임 ( $().on("event", "자식요소", callback)) on만 된다.
+// 기존 문서에 작성되지 않은 HTML 코드에 이벤트를 줄 때에는,
+// 컴파일 순서상 DOM으로 작성한 코드가 더 늦게 실행되기 때문에,
+// 기존 문서에 작성된 HTML 코드에 이벤트를 주고,
+// 그 안에 추가할 자식 요소에 이벤트를 전달하는 형식으로 개발한다.
+
+$(".paging").on("click", "a.changePage", function (e) {
+    e.preventDefault();
+    pageNum = $(this).attr("href");
+    showList(pageNum);
+})
+
+$(".register").on("click", function (e) {
+    e.preventDefault();
+    $(".register-form").show();
+    $(this).hide();
+})
+
+$(".cancel").on("click", function (e) {
+    e.preventDefault();
+    $(".register-form").hide();
+    $(".register").show();
+})
+
+$(".finish").click(function(e){
+    e.preventDefault();
+    const $replyWriter = $("input[name='replier']").val();
+    const $replyContent = $("textarea[name='reply']").val();
+
+    if(!$replyWriter || !$replyContent){
+        alert("내용을 입력해주세요.");
+        return;
+    }
+
+    replyService.add({boardBno: boardBno, replyWriter: $replyWriter, replyContent: $replyContent},
+        function(result){
+            $("input[name='replier']").val("");
+            $("textarea[name='reply']").val("");
+            showList(1);
+            $(".register-form").show();
+            $(".register").hide();
+        });
+})
+
+
+// $(document).ready(function () { // 완성되고 나서 마지막에 하게따 라는 뜻
+//     console.log(replyService);
+//     replyService.add(function (result) { // 여기로 콜백함수가 다시 온다.
+//     })
+// });
 
 function goUpdate(){
     location.href = '/board/modify' + paging + '&boardBno=' + boardBno;
@@ -83,17 +320,18 @@ function goUpdate(){
 $("a#goList").click(function(e){
     e.preventDefault();
     location.href = "/board/list" + paging;
-})
+});
+
     // 테스트
-    replyService.add({
-        replyContent: "JS Module Test",
-        replyWriter:"ksy123",
-        boardBno: boardBno
-    }, function(result){
-    console.log(result);
-    }, function (a, b, c) {
-    console.log(a,b,c)
-    })
+    // replyService.add({
+    //     replyContent: "JS Module Test",
+    //     replyWriter:"ksy123",
+    //     boardBno: boardBno
+    // }, function(result){
+    // console.log(result);
+    // }, function (a, b, c) {
+    // console.log(a,b,c)
+    // })
 
 // replyService.add({
 //     replyContent: "JS Module Test",
@@ -102,7 +340,6 @@ $("a#goList").click(function(e){
 // }, function(result){
 //     alert(result);
 // }, function(a, b, c){console.log(a, b, c)});
-
 
 // 테스트
 replyService.readone(138, function(result){
@@ -136,5 +373,6 @@ replyService.getlist({
     function(result) {
         console.log(result)
     }, function(a, b, c){console.log(a, b, c)});
+
 </script>
 </html>
