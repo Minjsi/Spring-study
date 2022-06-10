@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>게시글 작성</title>
     <link rel="stylesheet" href="/assets/css/main.css" />
     <style>
         body {transform: scale(0.8); margin-top: -50px;}
@@ -20,49 +20,45 @@
             <!-- Elements -->
             <header class="major">
                 <h1>Board</h1>
-                <p>게시글 수정</p>
+                <p>게시글 등록</p>
             </header>
             <!-- Table -->
-            <h3><a id="goList" class="button small">목록 보기</a></h3>
+            <h3><a href="/board/list" class="button small">목록 보기</a></h3>
             <div class="content">
                 <div class="form">
-                    <form method="post" action="/board/modify" th:object="${board}" enctype="multipart/form-data">
-                        <input type="hidden" th:field="${criteria.pageNum}">
-                        <input type="hidden" th:field="${criteria.amount}">
+                    <form name="registerForm" method="post" action="/board/register" id="registerForm" enctype="multipart/form-data">
                         <div class="fields">
                             <div class="field">
-                                <h4>번호</h4>
-                                <input type="text" th:field="*{boardBno}" readonly/>
+                                <h4>제목</h4>
+                                <input class="input-box" name="boardTitle" placeholder="Title" type="text" />
+                                <div id="boardTitleError" style="color: #ff0000;display: none;">제목을 입력하세요.</div>
+                            </div>
+
+                            <div class="field">
+                                <h4>내용</h4>
+                                <textarea class="input-box" name="boardContent" rows="6" placeholder="Content" style="resize:none"></textarea>
+                                <div id="boardContentError" style="color: red;display: none;">내용을 입력하세요.</div>
                             </div>
                             <div class="field">
-                                <h4>*제목</h4>
-                                <input type="text" th:field="*{boardTitle}"/>
+                                <h4>작성자</h4>
+                                <input class="input-box" name="boardWriter" placeholder="Writer" type="text" />
+                                <div id="boardWriterError" style="color: red;display: none;">작성자를 입력하세요.</div>
                             </div>
-                            <div class="field">
-                                <h4>*내용</h4>
-                                <textarea rows="6" style="resize:none" th:field="*{boardContent}"></textarea>
+                        </div>
+                        <div class="field">
+                            <h4>첨부파일</h4>
+                            <input type="file" name="uploadFiles" multiple>
+                            <div class="uploadResult">
+                                <ul></ul>
                             </div>
-                            <div class="field">
-                                <h4>*작성자</h4>
-                                <input type="text" th:field="*{boardWriter}"/>
-                            </div>
-                            <div class="field">
-                                <h4>첨부파일</h4>
-                                <input type="file" name="uploadFiles" multiple>
-                            </div>
-                            <div class="field">
-                                <div class="uploadResult">
-                                    <ul></ul>
-                                </div>
-                            </div>
+                        </div>
+                        <div class="field">
                             <div class="bigPictureWrapper">
                                 <div class="bigPicture"></div>
                             </div>
                         </div>
                         <ul class="actions special">
-                            <li>
-                                <input type="submit" class="button" value="수정 완료"/>
-                            </li>
+                            <li><input type="submit" class="button" value="등록" /></li>
                         </ul>
                     </form>
                 </div>
@@ -78,10 +74,8 @@
 <script src="/assets/js/breakpoints.min.js"></script>
 <script src="/assets/js/util.js"></script>
 <script src="/assets/js/main.js"></script>
-<script th:inline="javascript">
+<script>
     let regex = new RegExp("(.*?)\.(exe|sh|zip|alz)");
-    let boardBno = [[${board.boardBno}]];
-    let paging = [[${criteria.listLink}]];
     const $uploadResult = $(".uploadResult ul");
 
     // 이미지 원본이 있는 지 검사
@@ -204,26 +198,14 @@
         $uploadResult.append(str);
     }
 
-    (function(){
-        $.getJSON("/upload/list", {boardBno: boardBno}, function(list){
-            showUploadResult(list);
-        })
-    })();
-
-    let arFile = Array.from($("input[type='file']")[0].files);
-
     $("input[type='file']").on("change", function(e){
-        let formData =   new FormData();
+        let formData = new FormData();
         let inputFile = $("input[name='uploadFiles']");
         let files = inputFile[0].files;
         for(let i=0; i<files.length; i++){
             if(!checkExtension(files[i].name, files[i].size)){ return; }
             formData.append("uploadFiles", files[i]);
         }
-        Array.from($(this)[0].files).forEach(file => arFile.push(file));
-        const dataTransfer = new DataTransfer();
-        arFile.forEach(file => dataTransfer.items.add(file));
-        $(this)[0].files = dataTransfer.files;
 
         $.ajax({
             url: "/upload/upload",
@@ -240,6 +222,7 @@
     $(".uploadResult").on("click", "span", function(){
         let $target = $(this).data("file");
         let $li = $(this).closest("li");
+        let inputFile = $("input[name='uploadFiles']");
 
         $.ajax({
             url: "/upload/delete",
@@ -249,29 +232,19 @@
                 $li.remove();
                 let temp = $target.substring($target.indexOf("_") + 1);
                 temp = temp.substring(temp.indexOf("_") + 1);
+                const files = Array.from(inputFile[0].files);
                 const dataTransfer = new DataTransfer();
-                for(let i=0; i<arFile.length; i++){
-                    if(arFile[i].name == temp){
-                        arFile.splice(i, 1);
+                $.each(files, function(i, file){
+                    if(file.name == temp){
+                        files.splice(i, 1);
                     }
-                }
-                arFile.forEach(file => dataTransfer.items.add(file));
+                });
+
+                files.forEach(file => dataTransfer.items.add(file));
                 $("input[name='uploadFiles']")[0].files = dataTransfer.files;
             }
         });
     });
-
-    $("a#goList").click(function(e){
-        e.preventDefault();
-        location.href = "/board/list" + paging;
-    });
-
-    //    엔터 막아주기
-    //     $("input[name='boardTitle']").keydown(function(e){
-    //         if(e.keyCode == 13){
-    //             e.preventDefault();
-    //         }
-    //     });
 
 </script>
 </html>

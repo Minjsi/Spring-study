@@ -1,4 +1,4 @@
-package com.example.ex03.controller;
+package com.example.board.controller;
 /*
 문제점 및 해결 방안
 1. 동일한 이름으로 파일이 업로드 되었을 때 기존 파일이 사라지는 문제
@@ -7,7 +7,9 @@ package com.example.ex03.controller;
 4. 첨부파일 공격에 대비하기 위한 업로드 파일의 확장자 제한
 * * */
 
-import com.example.ex03.domain.vo.FileVO;
+import com.example.board.domain.vo.FileVO;
+import com.example.board.service.BoardService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnailator;
 import org.springframework.core.io.FileSystemResource;
@@ -37,36 +39,19 @@ import java.util.UUID;
 @Controller
 @Slf4j
 @RequestMapping("/upload/*")
-public class UploadController {
-    @GetMapping("/uploadForm")
-    public void uploadForm() { log.info("upload form");}
-
-    @PostMapping("/uploadFormAction")
-    public void upload(MultipartFile[] uploadFiles) throws IOException { // form 태그 name과 동일할 것
-        String uploadFolder = "C:/upload";
-        for(MultipartFile file : uploadFiles) {
-            log.info("----------");
-            log.info("Upload File Name : " + file.getOriginalFilename());
-            log.info("Upload File Size : " + file.getSize());
-
-            File saveFile = new File(uploadFolder, file.getOriginalFilename());
-            file.transferTo(saveFile);
-        }
-    }
-
-    @GetMapping("/uploadAjax")
-    public void uploadAjax() { log.info("upload Ajax");}
-
-    @PostMapping("/uploadAjaxAction")
+@RequiredArgsConstructor
+public class FileController {
+    private final BoardService boardService;
+    @PostMapping("/upload")
     @ResponseBody
-    public List<FileVO> uploadAjaxAction(MultipartFile[] uploadFile) throws IOException {
+    public List<FileVO> upload(MultipartFile[] uploadFiles) throws IOException {
         String uploadFolder = "C:/upload";
         ArrayList<FileVO> files = new ArrayList();
 //        yyyy/MM/dd
         File uploadPath = new File(uploadFolder, getFolder());
         if(!uploadPath.exists()) {uploadPath.mkdirs();}
 
-        for(MultipartFile file : uploadFile){
+        for(MultipartFile file : uploadFiles){
             FileVO fileVO = new FileVO(); // 화면으로 데이터를 보내주기 위함. for문안에 써주어야 함
             // 매번 새로운 객체를 꽂아주려고!
             // 위에서 썼던거 또 하면 불안하니까
@@ -79,10 +64,10 @@ public class UploadController {
             * */
 
             UUID uuid = UUID.randomUUID();
-            uploadFileName = uuid.toString()+"_"+uploadFileName;
             fileVO.setFileName(uploadFileName);
             fileVO.setUuid(uuid.toString());
             fileVO.setUploadPath(getFolder());
+            uploadFileName = uuid.toString()+"_"+uploadFileName;
             /*
             유유아이디가 클라이언트에 보이면 안돼서 유유아이디만 분리해야됨
             * */
@@ -145,6 +130,13 @@ public class UploadController {
         file = new File("C:/upload/", fileName.replace("s_","")); // 원본 삭제
         if(file.exists()) {
         }
+    }
+
+    @GetMapping("/list")
+    @ResponseBody
+    public List<FileVO> getListFile(Long boardBno) {
+        log.info("파일리스트 " + boardBno);
+        return boardService.getList(boardBno);
     }
 }
 

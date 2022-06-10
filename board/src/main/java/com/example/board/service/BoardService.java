@@ -2,11 +2,13 @@ package com.example.board.service;
 
 import com.example.board.domain.vo.BoardVO;
 import com.example.board.domain.vo.Criteria;
+import com.example.board.domain.vo.FileVO;
 import com.example.board.domain.vo.PageDTO;
 
 import java.util.List;
 
 public interface BoardService {
+    public List<FileVO> getList(Long boardBno);
     public void register(BoardVO boardVO);
     public BoardVO read(Long bno);
     public boolean modify(BoardVO boardVO);

@@ -6,12 +6,16 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>게시글 상세보기</title>
-    <link rel="stylesheet" href="/assets/css/main.css" />
+    <link rel="stylesheet" href="/assets/css/main.css"/>
     <style>
-        body {transform: scale(0.8);}
+        body {
+            transform: scale(0.8);
+        }
+
         .line {
             border-bottom: 1px solid #ff8b77;
         }
+
         li {
             list-style: none;
         }
@@ -29,7 +33,7 @@
                 <p>게시글 상세보기</p>
             </header>
             <!-- Table -->
-            <h3><a  id="goList" href="/board/list" class="button small">목록 보기</a></h3>
+            <h3><a id="goList" href="/board/list" class="button small">목록 보기</a></h3>
             <div class="content">
                 <div class="form">
                     <form method="post" action="/board/remove" th:object="${board}">
@@ -59,7 +63,6 @@
                         </ul>
 
 
-
                         <ul class="icons">
                             <li style="display: block">
                                 <span class="icon solid fa-envelope"></span>
@@ -71,6 +74,18 @@
                             <div>
                                 <h4>작성자</h4>
                                 <input type="text" name="replier" placeholder="Replier">
+                            </div>
+                            <div class="field">
+                                <h4>첨부파일</h4>
+                                <div class="uploadResult">
+                                    <ul></ul>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <div class="bigPictureWrapper">
+
+                                </div>
+                                <div class="bigPicture"></div>
                             </div>
                             <div>
                                 <h4>댓글</h4>
@@ -103,15 +118,117 @@ let pageNum = 1;
 let boardBno = [[${board.boardBno}]];
 let paging = [[${criteria.listLink}]];
 const replyUL = $("ul.replies");  // dom을 가져올때는 어디에 꽂아줄지 정해야함
+const $uploadResult = $(".uploadResult ul");
 
+
+// 이미지 원본이 있는 지 검사
+let check = false;
+// 애니메이션이 진행중인 지 검사
+let progress = false;
+// 이전에 클릭한 이미지 경로 저장
+let temp = "";
+
+function showImage(filePath){
+
+    // 만약 temp에 무언가가 들어가 있다면(undefined가 아니라면)
+    if(temp){
+        //현재 클릭한 썸네일의 경로와 이전에 클릭했던 썸네일의 경로를 비교한다.
+        if(filePath == temp){
+            //만약 이전에 눌렀던 썸네일과 동일하다면 애니메이션을 막아준다.
+            //똑같은 거 또 누르지 않게 막아주기
+            return;
+        }
+    }
+
+    // 애니메이션이 진행중일 경우 true
+    if(progress) { return; }
+    // 만약 애니메이션 진행중이 아닐 때에는
+    // 썸네일을 클릭했기 때문에 progress를 true로 변경시켜준다.
+    progress = true;
+
+    //정상적으로 해당 썸네일의 원본이 보이게 된다면,
+    //클릭한 썸네일의 경로를 temp에 담아준다.
+    temp = filePath;
+
+    let time = 0;
+
+    if(check){ //만약 check가 true라면 원본 이미지가 이미 보여지고 있는 상태
+
+        //이미 있는 원본 이미지를 없애준다.
+        $(".bigPicture").animate({width:"0%", height:"0%"}, 1000);
+        setTimeout(function(){
+            $(".bigPictureWrapper").hide();
+            // 애니메이션이 다 끝났을 때
+            progress = false;
+        },950);
+
+        //이미 있는 원본 이미지가 없어지는 데에 걸리는 시간을 time에 담아놓는다.
+        time = 1000;
+    }
+    setTimeout(function(){
+        $(".bigPictureWrapper").css("display", "flex").show();
+        $(".bigPicture").html("<img src='/upload/display?fileName=" + filePath + "'>")
+            .animate({width:"100%", height:"100%"}, 1000);
+        // 이미지 원본이 보이고 있음.
+        check = true;
+
+        setTimeout(function(){
+            // 애니메이션이 다 끝났을 때
+            progress = false;
+        }, 1000);
+
+        //    만약 원본 이미지가 있었다면 time에는 1000이 들어가서 없어지는 동안 기다리게 되고
+        //    원본 이미지가 없었다면 time에는 초기값인 0이 들어가서 클릭한 썸네일의 원본이 바로 보이게 된다.
+    }, time);
+}
+
+$(".bigPictureWrapper").on("click", function(){
+    temp = "";
+    // 원본 이미지 클릭 시 사라지는 이벤트 진행중
+    progress = true;
+    $(".bigPicture").animate({width:"0%", height:"0%"}, 1000);
+
+    setTimeout(function(){
+        $(".bigPictureWrapper").hide();
+        //이미지 원본 안보임
+        check = false;
+        //애니메이션이 다 끝났을 때
+        progress = false;
+    },1000);
+})
+
+
+
+function showUploadResult(files){
+    let str ="";
+    $(files).each(function(i, file){
+        str += "<li data-filename='" + file.fileName.substring(file.fileName.indexOf("_") + 1) + "' data-uuid='" + file.uuid + "' data-uploadpath='" + file.uploadPath + "' data-image='" + file.image + "'>";
+        if(file.image){
+            str += "<a href=\"javascript:showImage(\'" + file.uploadPath + "/" + file.uuid + "_" + file.fileName +"\');\"><img src='/upload/display?fileName=" + file.uploadPath + "/s_" + file.uuid + "_"  + file.fileName + "'></a>";
+        }else{
+            str += "<a href='/upload/download?fileName=" + file.uploadPath + "/" + file.uuid + "_" + file.fileName + "'><img src='/images/attach.png' width='100'></a>";
+        }
+        str += "<p>" + file.fileName.substring(file.fileName.indexOf("_") + 1) + "</p>"
+        str += "</li>"
+    });
+    $uploadResult.html(str);
+}
+
+
+(function () {
+    $.getJSON("/upload/list", {boardBno : boardBno}, function (list) {
+        showUploadResult(list);
+    })
+})();
 
 showList(pageNum);
-function showList(page){
-    replyService.getlist({bno : boardBno, page : page} // 모듈쪽에 object 형태로 전달
-        ,function (total, list) {
 
-        let str = "";
-            if(list == null || list.length == 0 ) {
+function showList(page) {
+    replyService.getlist({bno: boardBno, page: page} // 모듈쪽에 object 형태로 전달
+        , function (total, list) {
+
+            let str = "";
+            if (list == null || list.length == 0) {
                 replyUL.html("");
                 return;
             }
@@ -153,7 +270,7 @@ function showList(page){
 
 
             // 강사님의 숙제 코드 - registerdate와 updatedate를 어떻게 비교했을까
-            $.each(list, function(i, reply){
+            $.each(list, function (i, reply) {
                 str += "<li>";
                 str += "<div style='display: flex; justify-content: space-between;>";
                 str += "<strong style='display: block;'>" + reply.replyWriter + "</strong>";
@@ -182,8 +299,6 @@ function showList(page){
 };
 
 
-
-
 // 댓글 삭제
 $(".replies").on("click", "div.btns a.remove", function (e) {
     e.preventDefault();
@@ -193,29 +308,29 @@ $(".replies").on("click", "div.btns a.remove", function (e) {
     })
 })
 
-let check = false;
+let updateCheck = false;
 
 // 댓글 수정
 $(".replies").on("click", "div.btns a.modify", function (e) {
-        e.preventDefault();
-        if(check) {
-            alert("이미 수정 중인 댓글이 있습니다.")
-            return;
-        }
-        let replyNumber = this.classList[1];
-        let str = "";
-        $("a." + replyNumber).show();
-        $(this).hide();
+    e.preventDefault();
+    if (updateCheck) {
+        alert("이미 수정 중인 댓글이 있습니다.")
+        return;
+    }
+    let replyNumber = this.classList[1];
+    let str = "";
+    $("a." + replyNumber).show();
+    $(this).hide();
 
-        str += "<textarea class='"+ replyNumber + "' style='resize: none'>";
-        str += $("p." + replyNumber).text();
-        str += "</textarea>";
-        str +=
+    str += "<textarea class='" + replyNumber + "' style='resize: none'>";
+    str += $("p." + replyNumber).text();
+    str += "</textarea>";
+    str +=
 
         $("p." + replyNumber).replaceWith(str);
-        $("textarea." + replyNumber).css("width", "75%");
-        check = false;
-    })
+    $("textarea." + replyNumber).css("width", "75%");
+    updateCheck = false;
+})
 
 // 수정 완료
 $(".replies").on("click", "div.btns a.finish", function (e) {
@@ -228,35 +343,37 @@ $(".replies").on("click", "div.btns a.finish", function (e) {
     //     return;
     // };
     replyService.modify(replyNumber, {
-        replyContent : replyContent
+        replyContent: replyContent
     }, function (result) {
         alert(result);
         showList(pageNum);
-        check = true;
-    }, function(a, b, c){console.log(a, b, c)});
+        updateCheck = true;
+    }, function (a, b, c) {
+        console.log(a, b, c)
+    });
 })
 
 
-function showReplyPage(total){
+function showReplyPage(total) {
     let endPage = Math.ceil(pageNum / 10.0) * 10; // 올림
     let startPage = endPage - 9;
     let realEnd = Math.ceil(total / 10.0);  // 올림
     const $paging = $(".paging");
 
-    if(endPage > realEnd) {
+    if (endPage > realEnd) {
         endPage = realEnd;
     }
 
     let prev = startPage > 1;
     let next = endPage * 10 < total;
     let str = "";
-    if(prev){
+    if (prev) {
         str += "<a class='changePage' href='" + (startPage - 1) + "'><code>&lt;</code></a>"
     }
-    for(let i = startPage; i <= endPage; i++){
+    for (let i = startPage; i <= endPage; i++) {
         str += pageNum == i ? "<code>" + i + "</code>" : "<a class='changePage' href='" + i + "'><code>" + i + "</code></a>";
     }
-    if(next){
+    if (next) {
         str += "<a class='changePage' href='" + (endPage + 1) + "'><code>&gt;</code></a>"
     }
     $paging.html(str);
@@ -286,18 +403,18 @@ $(".cancel").on("click", function (e) {
     $(".register").show();
 })
 
-$(".finish").click(function(e){
+$(".finish").click(function (e) {
     e.preventDefault();
     const $replyWriter = $("input[name='replier']").val();
     const $replyContent = $("textarea[name='reply']").val();
 
-    if(!$replyWriter || !$replyContent){
+    if (!$replyWriter || !$replyContent) {
         alert("내용을 입력해주세요.");
         return;
     }
 
     replyService.add({boardBno: boardBno, replyWriter: $replyWriter, replyContent: $replyContent},
-        function(result){
+        function (result) {
             $("input[name='replier']").val("");
             $("textarea[name='reply']").val("");
             showList(1);
@@ -313,25 +430,25 @@ $(".finish").click(function(e){
 //     })
 // });
 
-function goUpdate(){
+function goUpdate() {
     location.href = '/board/modify' + paging + '&boardBno=' + boardBno;
 }
 
-$("a#goList").click(function(e){
+$("a#goList").click(function (e) {
     e.preventDefault();
     location.href = "/board/list" + paging;
 });
 
-    // 테스트
-    // replyService.add({
-    //     replyContent: "JS Module Test",
-    //     replyWriter:"ksy123",
-    //     boardBno: boardBno
-    // }, function(result){
-    // console.log(result);
-    // }, function (a, b, c) {
-    // console.log(a,b,c)
-    // })
+// 테스트
+// replyService.add({
+//     replyContent: "JS Module Test",
+//     replyWriter:"ksy123",
+//     boardBno: boardBno
+// }, function(result){
+// console.log(result);
+// }, function (a, b, c) {
+// console.log(a,b,c)
+// })
 
 // replyService.add({
 //     replyContent: "JS Module Test",
@@ -342,37 +459,42 @@ $("a#goList").click(function(e){
 // }, function(a, b, c){console.log(a, b, c)});
 
 // 테스트
-replyService.readone(138, function(result){
-    console.log(result)
-}, function (a, b, c) {
-console.log(a, b, c)
-})
-
-// 테스트
-replyService.remove(137, function(result){
+replyService.readone(138, function (result) {
     console.log(result)
 }, function (a, b, c) {
     console.log(a, b, c)
 })
 
-    // 테스트
-replyService.modify(140,{
+// 테스트
+replyService.remove(137, function (result) {
+    console.log(result)
+}, function (a, b, c) {
+    console.log(a, b, c)
+})
+
+// 테스트
+replyService.modify(140, {
     replyContent: "JS Module Test수정 테스트트",
-   replyWriter: "ksy123123 수정수정",
-}, function(result){
+    replyWriter: "ksy123123 수정수정",
+}, function (result) {
     console.log("수정 성공" + result)
-}, function(a, b, c){console.log(a, b, c)});
+}, function (a, b, c) {
+    console.log(a, b, c)
+});
 
 // 강사님 코드
 
 //    테스트
 
 replyService.getlist({
-    bno : 9,
-    page : 1},
-    function(result) {
+        bno: 9,
+        page: 1
+    },
+    function (result) {
         console.log(result)
-    }, function(a, b, c){console.log(a, b, c)});
+    }, function (a, b, c) {
+        console.log(a, b, c)
+    });
 
 </script>
 </html>

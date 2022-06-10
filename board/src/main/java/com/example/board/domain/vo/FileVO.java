@@ -1,4 +1,4 @@
-package com.example.ex03.controller.domain.vo;
+package com.example.board.domain.vo;
 
 import lombok.Data;
 import org.springframework.stereotype.Component;
@@ -10,4 +10,6 @@ public class FileVO {
    private String uploadPath;
    private String uuid;
    private boolean image;
+   private Long boardBno;
+   private Long fileSize;
 }

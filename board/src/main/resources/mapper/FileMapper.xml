@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.board.mapper.FileMapper">
+    <insert id="insertFile">
+        INSERT INTO TBL_FILE (UUID, UPLOAD_PATH, FILE_NAME, IMAGE, BOARD_BNO, FILE_SIZE)
+        VALUES (#{uuid}, #{uploadPath}, #{fileName}, #{image}, #{boardBno}, #{fileSize})
+    </insert>
+
+    <delete id="deleteFile">
+        DELETE FROM TBL_FILE WHERE UUID = #{uuid}
+    </delete>
+
+    <select id="findByBoardBno" resultType="fileVO">
+        SELECT UUID, UPLOAD_PATH, FILE_NAME, IMAGE, BOARD_BNO, FILE_SIZE
+        FROM TBL_FILE
+        WHERE BOARD_BNO = #{boardBno}
+    </select>
+</mapper>
